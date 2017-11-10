@@ -63,18 +63,22 @@ public class BuildAndVerifyIapRequestIT {
     HttpRequest iapRequest = BuildIapRequest.buildIapRequest(request, IAP_CLIENT_ID);
     HttpResponse response = iapRequest.execute();
     assertEquals(response.getStatusCode(), HttpStatus.SC_OK);
-    String headerWithtoken = response.parseAsString();
-    String[] split = headerWithtoken.split(":");
-    assertNotNull(split);
-    assertEquals(2, split.length);
-    assertEquals("x-goog-authenticated-user-jwt", split[0].trim());
 
-    String jwtToken = split[1].trim();
+    // there's usually not a header named "x-goog-authenticated-user-jwt"
+    // but we've rigged a test app to echo the value of the "x-goog-iap-jwt-assertion" request header into the "x-goog-authenticated-user-jwt" response header
+    // the intent appears to be to pull the server-side value out to the client side in order to execute a client-side test of what would typically be a server-side operation
+    // see https://github.com/jeffallen-google/iap-test-appengine-try-java
+    String jwtToken = response.getHeaders().getFirstHeaderStringValue("x-goog-authenticated-user-jwt");
+    assertNotNull(jwtToken);
+
     HttpRequest verifyJwtRequest =
         httpTransport
             .createRequestFactory()
             .buildGetRequest(new GenericUrl(IAP_PROTECTED_URL))
             .setHeaders(new HttpHeaders().set("x-goog-iap-jwt-assertion", jwtToken));
+    // you wouldn't typically do this client-side or build up a "verifyJwtRequest" like this
+    // verifyIapRequestHeader would typically be called server-side in the servlet passing the built-in request object
+    // see https://cloud.google.com/iap/docs/signed-headers-howto
     boolean verified =
         verifyIapRequestHeader.verifyJwtForAppEngine(
             verifyJwtRequest, IAP_PROJECT_NUMBER, IAP_PROJECT_ID);
