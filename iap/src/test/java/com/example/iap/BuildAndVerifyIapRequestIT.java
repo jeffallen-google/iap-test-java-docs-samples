@@ -37,6 +37,12 @@ public class BuildAndVerifyIapRequestIT {
   private static Long IAP_PROJECT_NUMBER = 320431926067L;
   private static String IAP_PROJECT_ID = "gcp-devrel-iap-reflect";
   private static String IAP_PROTECTED_URL = "https://gcp-devrel-iap-reflect.appspot.com";
+
+  // The client id is available on the "client id for web application" screen.  One way
+  // to get to that is from google cloud platform to click on IAM -> IAP.  Then click on
+  // the load balancer's "3 dots" and select "edit oauth client".  The client id will
+  // be up near the top of the screen.
+  
   private static String IAP_CLIENT_ID =
       "320431926067-ldm6839p8l2sei41nlsfc632l4d0v2u1.apps.googleusercontent.com";
 
